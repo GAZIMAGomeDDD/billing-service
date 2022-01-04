@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/GAZIMAGomeDDD/billing-service/internal/currencycache"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/handler"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/server"
+	"github.com/GAZIMAGomeDDD/billing-service/internal/storage/inmemory"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/storage/postgres"
 	"github.com/GAZIMAGomeDDD/billing-service/pkg/database/postgresdb"
 )
@@ -24,7 +26,9 @@ func main() {
 
 		return
 	}
-	h := handler.New(s)
+	cache := inmemory.New()
+	crCache := currencycache.New("", cache, 10)
+	h := handler.New(s, crCache)
 	srv := server.NewServer(h.Init())
 	srv.Run()
 }

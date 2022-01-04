@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/GAZIMAGomeDDD/billing-service/internal/currencycache"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/model"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/storage/postgres"
 	"github.com/GAZIMAGomeDDD/billing-service/pkg/exchangeratesapi"
@@ -15,16 +16,18 @@ import (
 )
 
 type Handler struct {
-	mux    *chi.Mux
-	logger *logrus.Logger
-	store  *postgres.Store
+	mux     *chi.Mux
+	logger  *logrus.Logger
+	store   *postgres.Store
+	crCache *currencycache.Cache
 }
 
-func New(s *postgres.Store) *Handler {
+func New(s *postgres.Store, crCache *currencycache.Cache) *Handler {
 	return &Handler{
-		mux:    chi.NewRouter(),
-		store:  s,
-		logger: logrus.New(),
+		mux:     chi.NewRouter(),
+		store:   s,
+		logger:  logrus.New(),
+		crCache: crCache,
 	}
 }
 
@@ -49,7 +52,7 @@ func (h *Handler) getBalance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if currency != "" {
-		rate, err := exchangeratesapi.GetCurrencyExchangeRate(currency)
+		rate, err := h.crCache.GetCurrencyExchangeRate(currency)
 		if err != nil {
 			switch err {
 			case exchangeratesapi.ErrWrongCurrency:
