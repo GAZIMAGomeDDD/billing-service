@@ -13,7 +13,7 @@ const (
 
 		CREATE TABLE IF NOT EXISTS transactions
 		(
-			id 		   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+			id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 			to_id      UUID REFERENCES users(id),
 			from_id    UUID REFERENCES users(id),
 			money      NUMERIC(10, 2) NOT NULL,
