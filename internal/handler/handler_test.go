@@ -120,7 +120,7 @@ func (t *handlerTestSuite) Test_getBalanceSomeServerError2() {
 	}, nil)
 
 	cr := new(mock.MockCurrency)
-	cr.On("GetCurrencyRate", "UDS").Return(0, fmt.Errorf("some error happened"))
+	cr.On("GetCurrencyRate", "USD").Return(0, fmt.Errorf("some error happened"))
 
 	h := handler.New(s, cr)
 
@@ -129,7 +129,7 @@ func (t *handlerTestSuite) Test_getBalanceSomeServerError2() {
 
 	body, err := json.Marshal(map[string]string{"id": "b91a95a4-078f-4afd-b11c-4850eb65e784"})
 	t.Nil(err)
-	req, err := http.NewRequest("POST", testSrv.URL+"/getBalance?currency=UDS", bytes.NewReader(body))
+	req, err := http.NewRequest("POST", testSrv.URL+"/getBalance?currency=USD", bytes.NewReader(body))
 	t.Nil(err)
 	resp, err := c.Do(req)
 	t.Nil(err)
@@ -143,7 +143,7 @@ func (t *handlerTestSuite) Test_getBalanceErrWrongCurrency() {
 	}, nil)
 
 	cr := new(mock.MockCurrency)
-	cr.On("GetCurrencyRate", "USD").Return(0, exchangeratesapi.ErrWrongCurrency)
+	cr.On("GetCurrencyRate", "UDS").Return(0, exchangeratesapi.ErrWrongCurrency)
 
 	h := handler.New(s, cr)
 	testSrv := httptest.NewServer(h.Init())
@@ -151,7 +151,7 @@ func (t *handlerTestSuite) Test_getBalanceErrWrongCurrency() {
 
 	body, err := json.Marshal(map[string]string{"id": "b91a95a4-078f-4afd-b11c-4850eb65e784"})
 	t.Nil(err)
-	req, err := http.NewRequest("POST", testSrv.URL+"/getBalance?currency=USD", bytes.NewReader(body))
+	req, err := http.NewRequest("POST", testSrv.URL+"/getBalance?currency=UDS", bytes.NewReader(body))
 	t.Nil(err)
 	resp, err := c.Do(req)
 	t.Nil(err)
