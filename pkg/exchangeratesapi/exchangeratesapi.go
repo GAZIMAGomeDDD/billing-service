@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func GetCurrencyExchangeRate(currency string, apiKey string) (float64, error) {
+func GetCurrencyRateOfRuble(currency string, apiKey string) (float64, error) {
 	var body struct {
 		Rates map[string]float64 `json:"rates"`
 	}

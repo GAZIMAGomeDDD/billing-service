@@ -20,6 +20,9 @@ const (
 			method 	   TEXT NOT NULL,
 			created_at TIMESTAMP DEFAULT now()
 		);
+
+		CREATE INDEX ON transactions (to_id);
+		CREATE INDEX ON transactions (from_id);
 	`
 
 	sqlCreateUser = `

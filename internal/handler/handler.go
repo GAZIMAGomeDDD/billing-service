@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/GAZIMAGomeDDD/billing-service/internal/currencycache"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/model"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/storage/postgres"
 	"github.com/GAZIMAGomeDDD/billing-service/pkg/exchangeratesapi"
@@ -16,18 +15,30 @@ import (
 )
 
 type Handler struct {
-	mux     *chi.Mux
-	logger  *logrus.Logger
-	store   *postgres.Store
-	crCache *currencycache.Cache
+	mux    *chi.Mux
+	logger *logrus.Logger
+	store  SQLStorage
+	cr     Currency
 }
 
-func New(s *postgres.Store, crCache *currencycache.Cache) *Handler {
+type SQLStorage interface {
+	GetBalance(string) (*model.User, error)
+	MoneyTransfer(string, string, float64) error
+	IncreaseOrDecreaseBalance(string, float64) (*model.User, error)
+	GetTransaction(string) (*model.Transaction, error)
+	ListOfTransactions(string, string, int, int) ([]model.Transaction, error)
+}
+
+type Currency interface {
+	GetCurrencyRate(string) (float64, error)
+}
+
+func New(s SQLStorage, cr Currency) *Handler {
 	return &Handler{
-		mux:     chi.NewRouter(),
-		store:   s,
-		logger:  logrus.New(),
-		crCache: crCache,
+		mux:    chi.NewRouter(),
+		store:  s,
+		logger: logrus.New(),
+		cr:     cr,
 	}
 }
 
@@ -52,7 +63,7 @@ func (h *Handler) getBalance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if currency != "" {
-		rate, err := h.crCache.GetCurrencyExchangeRate(currency)
+		rate, err := h.cr.GetCurrencyRate(currency)
 		if err != nil {
 			switch err {
 			case exchangeratesapi.ErrWrongCurrency:
