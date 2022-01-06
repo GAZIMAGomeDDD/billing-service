@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-func GetCurrencyRateOfRuble(currency string, apiKey string) (float64, error) {
+func GetCurrencyRateOfRuble(currency string, token string) (float64, error) {
 	var body struct {
 		Rates map[string]float64 `json:"rates"`
 	}
 
 	currency = strings.ToUpper(currency)
-	url := fmt.Sprintf("http://api.exchangeratesapi.io/v1/latest?access_key=%s&format=1", apiKey)
+	url := fmt.Sprintf("http://api.exchangeratesapi.io/v1/latest?access_key=%s&format=1", token)
 
 	response, err := http.Get(url)
 	if err != nil {

@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  web:
+    build: .
+    command: "./app"
+    environment:
+      - postgres_connection_string=postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+      - exchangeratesapi_token=207e0d99dc8df832c4921e5af54e56e4
+      - serve_address=:8080
+    ports:
+      - 8080:8080
+    depends_on:
+      - db 
+  db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432

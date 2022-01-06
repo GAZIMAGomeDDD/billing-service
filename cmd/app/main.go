@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"github.com/GAZIMAGomeDDD/billing-service/internal/currency"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/handler"
@@ -13,7 +14,9 @@ import (
 )
 
 func main() {
-	connString := "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+	connString := os.Getenv("postgres_connection_string")
+	serveAddress := os.Getenv("serve_address")
+	exchangeratesapiToken := os.Getenv("exchangeratesapi_token")
 
 	db, err := postgresdb.NewDB(context.Background(), connString)
 	if err != nil {
@@ -26,10 +29,10 @@ func main() {
 	}
 
 	cache := inmemory.New()
-	cr := currency.New("207e0d99dc8df832c4921e5af54e56e4", cache, 100)
+	cr := currency.New(exchangeratesapiToken, cache, 10)
 	h := handler.New(s, cr)
 
-	srv := server.NewServer(h.Init(), ":8080")
+	srv := server.NewServer(h.Init(), serveAddress)
 	if err := srv.Run(); err != nil {
 		logrus.Fatal(err)
 	}
