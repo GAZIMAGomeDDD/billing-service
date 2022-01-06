@@ -1,10 +1,11 @@
 package currency
 
+import "github.com/GAZIMAGomeDDD/billing-service/pkg/exchangeratesapi"
+
 type Currency struct {
-	cache                  InMemoryCache
-	ttl                    int64
-	apiKey                 string
-	GetCurrencyRateOfRuble func(string, string) (float64, error)
+	cache  InMemoryCache
+	ttl    int64
+	apiKey string
 }
 
 type InMemoryCache interface {
@@ -25,7 +26,7 @@ func (c *Currency) GetCurrencyRate(currency string) (float64, error) {
 
 	value, ok := c.cache.Get(currency)
 	if !ok {
-		rate, err := c.GetCurrencyRateOfRuble(currency, c.apiKey)
+		rate, err := exchangeratesapi.GetCurrencyRateOfRuble(currency, c.apiKey)
 		if err != nil {
 			return 0, err
 		}

@@ -26,3 +26,7 @@ func (s *Store) initSchema() error {
 
 	return nil
 }
+
+func (s *Store) Close() {
+	s.db.Close()
+}

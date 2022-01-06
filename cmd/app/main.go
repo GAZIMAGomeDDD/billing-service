@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/GAZIMAGomeDDD/billing-service/internal/currency"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/handler"
@@ -10,7 +9,7 @@ import (
 	"github.com/GAZIMAGomeDDD/billing-service/internal/storage/postgres"
 	"github.com/GAZIMAGomeDDD/billing-service/pkg/database/inmemory"
 	"github.com/GAZIMAGomeDDD/billing-service/pkg/database/postgresdb"
-	"github.com/GAZIMAGomeDDD/billing-service/pkg/exchangeratesapi"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -18,19 +17,20 @@ func main() {
 
 	db, err := postgresdb.NewDB(context.Background(), connString)
 	if err != nil {
-		fmt.Println(err)
-		return
+		logrus.Fatal(err)
 	}
+
 	s, err := postgres.New(db)
 	if err != nil {
-		fmt.Println(err)
-
-		return
+		logrus.Fatal(err)
 	}
+
 	cache := inmemory.New()
-	cr := currency.New("", cache, 10)
-	cr.GetCurrencyRateOfRuble = exchangeratesapi.GetCurrencyRateOfRuble
+	cr := currency.New("207e0d99dc8df832c4921e5af54e56e4", cache, 100)
 	h := handler.New(s, cr)
-	srv := server.NewServer(h.Init())
-	srv.Run()
+
+	srv := server.NewServer(h.Init(), ":8080")
+	if err := srv.Run(); err != nil {
+		logrus.Fatal(err)
+	}
 }

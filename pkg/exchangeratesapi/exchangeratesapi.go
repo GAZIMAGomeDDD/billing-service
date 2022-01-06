@@ -2,6 +2,7 @@ package exchangeratesapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -12,8 +13,7 @@ func GetCurrencyRateOfRuble(currency string, apiKey string) (float64, error) {
 	}
 
 	currency = strings.ToUpper(currency)
-	url := "http://api.exchangeratesapi.io/v1/latest?access_key=207e0d99dc8df832c4921e5af54e56e4&format=1"
-	// url := fmt.Sprintf("http://api.exchangeratesapi.io/v1/latest?access_key=%s&format=1", apiKey)
+	url := fmt.Sprintf("http://api.exchangeratesapi.io/v1/latest?access_key=%s&format=1", apiKey)
 
 	response, err := http.Get(url)
 	if err != nil {
