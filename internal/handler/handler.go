@@ -13,6 +13,7 @@ import (
 	"github.com/GAZIMAGomeDDD/billing-service/pkg/exchangeratesapi"
 	logger "github.com/chi-middleware/logrus-logger"
 	"github.com/go-chi/chi/v5"
+	"github.com/neilotoole/errgroup"
 	"github.com/sirupsen/logrus"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -61,11 +62,38 @@ func (h *Handler) getBalance(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&body)
 	defer r.Body.Close()
 
-	user, err := h.store.GetBalance(body.UserID)
-	if err != nil {
+	eg, _ := errgroup.WithContext(r.Context())
+
+	var user *model.User
+	var err error
+	eg.Go(func() error {
+		user, err = h.store.GetBalance(body.UserID)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	var rate float64
+	if currency != "" {
+		eg.Go(func() error {
+			rate, err = h.cr.GetCurrencyRate(currency)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+
+	}
+
+	if err = eg.Wait(); err != nil {
 		switch err {
 		case postgres.ErrUserNotFound:
 			http.Error(w, err.Error(), http.StatusNotFound)
+		case exchangeratesapi.ErrWrongCurrency:
+			http.Error(w, err.Error(), http.StatusOK)
 		default:
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}
@@ -75,19 +103,6 @@ func (h *Handler) getBalance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if currency != "" {
-		rate, err := h.cr.GetCurrencyRate(currency)
-		if err != nil {
-			switch err {
-			case exchangeratesapi.ErrWrongCurrency:
-				http.Error(w, err.Error(), http.StatusOK)
-			default:
-				http.Error(w, "Internal server error", http.StatusInternalServerError)
-			}
-
-			h.logger.Error(err)
-			return
-		}
-
 		user.Balance = math.Round((user.Balance/rate)*100) / 100
 	}
 
