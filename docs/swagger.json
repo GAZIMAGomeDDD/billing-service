@@ -1,0 +1,298 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Billing Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/changeBalance": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "--",
+                        "name": "changeBalance",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ChangeBalanceQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "not enough money",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/getBalance": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "--",
+                        "name": "getBalance",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.GetBalanceQuery"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "currency",
+                        "name": "currency",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GetBalanceResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "user not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/getTransaction": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "--",
+                        "name": "getTransaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.GetTransaction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Transaction"
+                        }
+                    }
+                }
+            }
+        },
+        "/listOfTransactions": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "--",
+                        "name": "listOfTransactions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ListOfTransactionsQuery"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Transaction"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/moneyTransfer": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "--",
+                        "name": "moneyTransfer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.MoneyTransfer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "not enough money",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "user not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.ChangeBalanceQuery": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "b91a95a4-078f-4afd-b11c-4850eb65e784"
+                },
+                "money": {
+                    "type": "number",
+                    "example": 99.99
+                }
+            }
+        },
+        "model.ChangeBalanceResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number",
+                    "example": 99.99
+                },
+                "id": {
+                    "type": "string",
+                    "example": "b91a95a4-078f-4afd-b11c-4850eb65e784"
+                }
+            }
+        },
+        "model.GetBalanceQuery": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "b91a95a4-078f-4afd-b11c-4850eb65e784"
+                }
+            }
+        },
+        "model.GetBalanceResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number",
+                    "example": 99.99
+                },
+                "id": {
+                    "type": "string",
+                    "example": "b91a95a4-078f-4afd-b11c-4850eb65e784"
+                }
+            }
+        },
+        "model.GetTransaction": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "b91a95a4-078f-4afd-b11c-4850eb65e784"
+                }
+            }
+        },
+        "model.ListOfTransactionsQuery": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "b91a95a4-078f-4afd-b11c-4850eb65e784"
+                }
+            }
+        },
+        "model.MoneyTransfer": {
+            "type": "object",
+            "properties": {
+                "from_id": {
+                    "type": "string",
+                    "example": "b81a95a4-078f-5dfd-b11c-4850eb35e785"
+                },
+                "money": {
+                    "type": "number",
+                    "example": 99.99
+                },
+                "to_id": {
+                    "type": "string",
+                    "example": "b91a95a4-078f-4afd-b11c-4850eb65e784"
+                }
+            }
+        },
+        "model.Transaction": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "from_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "money": {
+                    "type": "number"
+                },
+                "to_id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -2,6 +2,7 @@ FROM golang:1.17.5-alpine as builder
 WORKDIR /build
 
 COPY cmd ./cmd
+COPY docs ./docs
 COPY internal ./internal
 COPY pkg ./pkg
 COPY go.* ./

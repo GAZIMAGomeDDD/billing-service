@@ -160,7 +160,7 @@ func (t *handlerTestSuite) Test_getBalanceErrWrongCurrency() {
 
 func (t *handlerTestSuite) Test_increaseBalance() {
 	s := mock.NewMockStore()
-	s.On("IncreaseOrDecreaseBalance", "b91a95a4-078f-4afd-b11c-4850eb65e784", 175.22).Return(&model.User{
+	s.On("ChangeBalance", "b91a95a4-078f-4afd-b11c-4850eb65e784", 175.22).Return(&model.User{
 		ID:      "b91a95a4-078f-4afd-b11c-4850eb65e784",
 		Balance: 175.22,
 	}, nil)
@@ -185,7 +185,7 @@ func (t *handlerTestSuite) Test_increaseBalance() {
 
 func (t *handlerTestSuite) Test_DecreaseBalanceErrNotEnoughMoney() {
 	s := mock.NewMockStore()
-	s.On("IncreaseOrDecreaseBalance", "b91a95a4-078f-4afd-b11c-4850eb65e784", -175000.22).Return(nil, postgres.ErrNotEnoughMoney)
+	s.On("ChangeBalance", "b91a95a4-078f-4afd-b11c-4850eb65e784", -175000.22).Return(nil, postgres.ErrNotEnoughMoney)
 
 	h := handler.New(s, nil)
 	testSrv := httptest.NewServer(h.Init())
@@ -207,7 +207,7 @@ func (t *handlerTestSuite) Test_DecreaseBalanceErrNotEnoughMoney() {
 
 func (t *handlerTestSuite) Test_increaseBalanceSomeServerError() {
 	s := mock.NewMockStore()
-	s.On("IncreaseOrDecreaseBalance", "b91a95a4-078f-4afd-b11c-4850eb65e784", 175.22).Return(nil, fmt.Errorf("some error happened"))
+	s.On("ChangeBalance", "b91a95a4-078f-4afd-b11c-4850eb65e784", 175.22).Return(nil, fmt.Errorf("some error happened"))
 
 	h := handler.New(s, nil)
 	testSrv := httptest.NewServer(h.Init())

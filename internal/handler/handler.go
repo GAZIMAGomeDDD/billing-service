@@ -6,14 +6,19 @@ import (
 	"net/http"
 	"strconv"
 
+	_ "github.com/GAZIMAGomeDDD/billing-service/docs"
+
 	"github.com/GAZIMAGomeDDD/billing-service/internal/model"
 	"github.com/GAZIMAGomeDDD/billing-service/internal/storage/postgres"
 	"github.com/GAZIMAGomeDDD/billing-service/pkg/exchangeratesapi"
 	logger "github.com/chi-middleware/logrus-logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// @title Billing Service API
+// @version 1.0
 type Handler struct {
 	mux    *chi.Mux
 	logger *logrus.Logger
@@ -24,7 +29,7 @@ type Handler struct {
 type SQLStorage interface {
 	GetBalance(string) (*model.User, error)
 	MoneyTransfer(string, string, float64) error
-	IncreaseOrDecreaseBalance(string, float64) (*model.User, error)
+	ChangeBalance(string, float64) (*model.User, error)
 	GetTransaction(string) (*model.Transaction, error)
 	ListOfTransactions(string, string, int, int) ([]model.Transaction, error)
 }
@@ -42,14 +47,21 @@ func New(s SQLStorage, cr Currency) *Handler {
 	}
 }
 
+// @Produce json
+// @Param getBalance body model.GetBalanceQuery true "--"
+// @Param currency query string false "currency"
+// @Success 200 {object} model.GetBalanceResponse
+// @Failure 404 {string} http.Error "user not found"
+// @Failure 500 {string} http.Error "Internal server error"
+// @Router /getBalance [post]
 func (h *Handler) getBalance(w http.ResponseWriter, r *http.Request) {
-	var u model.User
+	var body model.GetBalanceQuery
 	currency := r.URL.Query().Get("currency")
 
-	json.NewDecoder(r.Body).Decode(&u)
+	json.NewDecoder(r.Body).Decode(&body)
 	defer r.Body.Close()
 
-	user, err := h.store.GetBalance(u.ID)
+	user, err := h.store.GetBalance(body.UserID)
 	if err != nil {
 		switch err {
 		case postgres.ErrUserNotFound:
@@ -82,16 +94,19 @@ func (h *Handler) getBalance(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func (h *Handler) increaseOrDecreaseBalance(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		ID    string  `json:"id"`
-		Money float64 `json:"money"`
-	}
+// @Produce json
+// @Param changeBalance body model.ChangeBalanceQuery true "--"
+// @Success 200 {object} model.ChangeBalanceResponse
+// @Failure 200 {string} http.Error "not enough money"
+// @Failure 500  {string} http.Error "Internal server error"
+// @Router /changeBalance [post]
+func (h *Handler) changeBalance(w http.ResponseWriter, r *http.Request) {
+	var body model.ChangeBalanceQuery
 
 	json.NewDecoder(r.Body).Decode(&body)
 	defer r.Body.Close()
 
-	user, err := h.store.IncreaseOrDecreaseBalance(body.ID, body.Money)
+	user, err := h.store.ChangeBalance(body.UserID, body.Money)
 	if err != nil {
 		switch err {
 		case postgres.ErrNotEnoughMoney:
@@ -107,12 +122,14 @@ func (h *Handler) increaseOrDecreaseBalance(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(user)
 }
 
+// @Produce json
+// @Param moneyTransfer body model.MoneyTransfer true "--"
+// @Failure 404 {string} http.Error "user not found"
+// @Failure 200 {string} http.Error "not enough money"
+// @Failure 500  {string} http.Error "Internal server error"
+// @Router /moneyTransfer [post]
 func (h *Handler) moneyTransfer(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		ToID   string  `json:"to_id"`
-		FromID string  `json:"from_id"`
-		Money  float64 `json:"money"`
-	}
+	var body model.MoneyTransfer
 
 	json.NewDecoder(r.Body).Decode(&body)
 	defer r.Body.Close()
@@ -132,11 +149,13 @@ func (h *Handler) moneyTransfer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Produce json
+// @Param listOfTransactions body model.ListOfTransactionsQuery true "--"
+// @Param page query string true "page"
+// @Success 200 {array} model.Transaction
+// @Router /listOfTransactions [post]
 func (h *Handler) listOfTransactions(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		UserID string `json:"user_id"`
-		Limit  int    `json:"limit"`
-	}
+	var body model.ListOfTransactionsQuery
 
 	pageString := r.URL.Query().Get("page")
 	page, _ := strconv.Atoi(pageString)
@@ -154,8 +173,12 @@ func (h *Handler) listOfTransactions(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(transactions)
 }
 
+// @Produce json
+// @Param getTransaction body model.GetTransaction true "--"
+// @Success 200 {object} model.Transaction
+// @Router /getTransaction [post]
 func (h *Handler) getTransaction(w http.ResponseWriter, r *http.Request) {
-	var t model.Transaction
+	var t model.GetTransaction
 
 	json.NewDecoder(r.Body).Decode(&t)
 	defer r.Body.Close()
@@ -179,10 +202,13 @@ func (h *Handler) getTransaction(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Init() *chi.Mux {
 	h.mux.Use(logger.Logger("router", h.logger))
 	h.mux.Post("/getBalance", h.getBalance)
-	h.mux.Post("/increaseOrDecreaseBalance", h.increaseOrDecreaseBalance)
+	h.mux.Post("/changeBalance", h.changeBalance)
 	h.mux.Post("/moneyTransfer", h.moneyTransfer)
 	h.mux.Post("/listOfTransactions", h.listOfTransactions)
 	h.mux.Post("/getTransaction", h.getTransaction)
+
+	h.mux.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json")))
 
 	return h.mux
 }

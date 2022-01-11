@@ -15,7 +15,7 @@ func (s *Store) createUser(uid string, tx *sql.Tx) error {
 	return nil
 }
 
-func (s *Store) IncreaseOrDecreaseBalance(uid string, money float64) (*model.User, error) {
+func (s *Store) ChangeBalance(uid string, money float64) (*model.User, error) {
 	var user model.User
 
 	tx, err := s.db.Begin()

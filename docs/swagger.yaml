@@ -1,0 +1,193 @@
+definitions:
+  model.ChangeBalanceQuery:
+    properties:
+      id:
+        example: b91a95a4-078f-4afd-b11c-4850eb65e784
+        type: string
+      money:
+        example: 99.99
+        type: number
+    type: object
+  model.ChangeBalanceResponse:
+    properties:
+      balance:
+        example: 99.99
+        type: number
+      id:
+        example: b91a95a4-078f-4afd-b11c-4850eb65e784
+        type: string
+    type: object
+  model.GetBalanceQuery:
+    properties:
+      id:
+        example: b91a95a4-078f-4afd-b11c-4850eb65e784
+        type: string
+    type: object
+  model.GetBalanceResponse:
+    properties:
+      balance:
+        example: 99.99
+        type: number
+      id:
+        example: b91a95a4-078f-4afd-b11c-4850eb65e784
+        type: string
+    type: object
+  model.GetTransaction:
+    properties:
+      id:
+        example: b91a95a4-078f-4afd-b11c-4850eb65e784
+        type: string
+    type: object
+  model.ListOfTransactionsQuery:
+    properties:
+      limit:
+        example: 5
+        type: integer
+      user_id:
+        example: b91a95a4-078f-4afd-b11c-4850eb65e784
+        type: string
+    type: object
+  model.MoneyTransfer:
+    properties:
+      from_id:
+        example: b81a95a4-078f-5dfd-b11c-4850eb35e785
+        type: string
+      money:
+        example: 99.99
+        type: number
+      to_id:
+        example: b91a95a4-078f-4afd-b11c-4850eb65e784
+        type: string
+    type: object
+  model.Transaction:
+    properties:
+      created_at:
+        type: string
+      from_id:
+        type: string
+      id:
+        type: string
+      method:
+        type: string
+      money:
+        type: number
+      to_id:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: Billing Service API
+  version: "1.0"
+paths:
+  /changeBalance:
+    post:
+      parameters:
+      - description: --
+        in: body
+        name: changeBalance
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChangeBalanceQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: not enough money
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+  /getBalance:
+    post:
+      parameters:
+      - description: --
+        in: body
+        name: getBalance
+        required: true
+        schema:
+          $ref: '#/definitions/model.GetBalanceQuery'
+      - description: currency
+        in: query
+        name: currency
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetBalanceResponse'
+        "404":
+          description: user not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+  /getTransaction:
+    post:
+      parameters:
+      - description: --
+        in: body
+        name: getTransaction
+        required: true
+        schema:
+          $ref: '#/definitions/model.GetTransaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Transaction'
+  /listOfTransactions:
+    post:
+      parameters:
+      - description: --
+        in: body
+        name: listOfTransactions
+        required: true
+        schema:
+          $ref: '#/definitions/model.ListOfTransactionsQuery'
+      - description: page
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Transaction'
+            type: array
+  /moneyTransfer:
+    post:
+      parameters:
+      - description: --
+        in: body
+        name: moneyTransfer
+        required: true
+        schema:
+          $ref: '#/definitions/model.MoneyTransfer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: not enough money
+          schema:
+            type: string
+        "404":
+          description: user not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+swagger: "2.0"

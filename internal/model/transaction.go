@@ -10,3 +10,12 @@ type Transaction struct {
 	Method    string    `json:"method" db:"method"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
+
+type ListOfTransactionsQuery struct {
+	UserID string `json:"user_id" example:"b91a95a4-078f-4afd-b11c-4850eb65e784"`
+	Limit  int    `json:"limit" example:"5"`
+}
+
+type GetTransaction struct {
+	ID string `json:"id" example:"b91a95a4-078f-4afd-b11c-4850eb65e784"`
+}

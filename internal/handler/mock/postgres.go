@@ -33,7 +33,7 @@ func (m *MockStore) MoneyTransfer(to_id, from_id string, money float64) error {
 	return args.Error(0)
 }
 
-func (m *MockStore) IncreaseOrDecreaseBalance(uid string, money float64) (*model.User, error) {
+func (m *MockStore) ChangeBalance(uid string, money float64) (*model.User, error) {
 	args := m.Called(uid, money)
 
 	arg0 := args.Get(0)
