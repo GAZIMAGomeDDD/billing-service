@@ -176,7 +176,7 @@ func (t *handlerTestSuite) Test_increaseBalance() {
 		},
 	)
 	t.Nil(err)
-	req, err := http.NewRequest("POST", testSrv.URL+"/increaseOrDecreaseBalance", bytes.NewReader(body))
+	req, err := http.NewRequest("POST", testSrv.URL+"/changeBalance", bytes.NewReader(body))
 	t.Nil(err)
 	resp, err := c.Do(req)
 	t.Nil(err)
@@ -198,7 +198,7 @@ func (t *handlerTestSuite) Test_DecreaseBalanceErrNotEnoughMoney() {
 		},
 	)
 	t.Nil(err)
-	req, err := http.NewRequest("POST", testSrv.URL+"/increaseOrDecreaseBalance", bytes.NewReader(body))
+	req, err := http.NewRequest("POST", testSrv.URL+"/changeBalance", bytes.NewReader(body))
 	t.Nil(err)
 	resp, err := c.Do(req)
 	t.Nil(err)
@@ -220,7 +220,7 @@ func (t *handlerTestSuite) Test_increaseBalanceSomeServerError() {
 		},
 	)
 	t.Nil(err)
-	req, err := http.NewRequest("POST", testSrv.URL+"/increaseOrDecreaseBalance", bytes.NewReader(body))
+	req, err := http.NewRequest("POST", testSrv.URL+"/changeBalance", bytes.NewReader(body))
 	t.Nil(err)
 	resp, err := c.Do(req)
 	t.Nil(err)
