@@ -141,11 +141,17 @@ var doc = `{
                         }
                     },
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "page",
                         "name": "page",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sort",
+                        "name": "sort",
+                        "in": "query"
                     }
                 ],
                 "responses": {

@@ -151,7 +151,8 @@ func (h *Handler) moneyTransfer(w http.ResponseWriter, r *http.Request) {
 
 // @Produce json
 // @Param listOfTransactions body model.ListOfTransactionsQuery true "--"
-// @Param page query string true "page"
+// @Param page query int true "page"
+// @Param sort query string false "sort"
 // @Success 200 {array} model.Transaction
 // @Router /listOfTransactions [post]
 func (h *Handler) listOfTransactions(w http.ResponseWriter, r *http.Request) {
@@ -160,10 +161,12 @@ func (h *Handler) listOfTransactions(w http.ResponseWriter, r *http.Request) {
 	pageString := r.URL.Query().Get("page")
 	page, _ := strconv.Atoi(pageString)
 
+	sort := r.URL.Query().Get("sort")
+
 	json.NewDecoder(r.Body).Decode(&body)
 	defer r.Body.Close()
 
-	transactions, err := h.store.ListOfTransactions(body.UserID, "date", body.Limit, page)
+	transactions, err := h.store.ListOfTransactions(body.UserID, sort, body.Limit, page)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		h.logger.Error(err)
